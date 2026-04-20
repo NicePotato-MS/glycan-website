@@ -5,6 +5,7 @@ This folder tracks development plans and progress for the Glycan website.
 ## Plan Files
 
 - `2026-04-20.md` - Initial planning session, outlining 5 priority additions
+- `2026-04-20-game.md` - Memory Match game page plan (April 20, 2026)
 
 ## Status
 
@@ -35,7 +36,7 @@ This folder tracks development plans and progress for the Glycan website.
 
 ## In Progress
 
-None currently
+- **Memory Match Game** - Planned, awaiting approval (see `2026-04-20-game.md`)
 
 ## Planned Features
 
