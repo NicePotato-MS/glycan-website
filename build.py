@@ -40,6 +40,13 @@ pages = {
         "accent_glow": Markup("rgba(244,114,182,.3)"),
         "accent_card": Markup("rgba(244,114,182,.06)"),
     },
+    "game.html": {
+        "accent": Markup("#5eead4"),
+        "accent_rgb": Markup("94,234,212"),
+        "accent_secondary": Markup("#a78bfa"),
+        "accent_glow": Markup("rgba(94,234,212,.3)"),
+        "accent_card": Markup("rgba(94,234,212,.06)"),
+    },
 }
 
 # Render each page

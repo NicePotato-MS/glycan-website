@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block extra_css %}<style>:root { --accent: #5eead4; --gradient-end: #a78bfa }</style>
+<style>
+/* ── Game-specific styles ─────────────────── */
+.game-header { text-align: center; margin-bottom: 32px; }
+.game-title { font-family: 'Space Mono', monospace; font-size: 28px; background: linear-gradient(to right, var(--accent), var(--gradient-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+
+/* Stats bar */
+.stats-bar { display: flex; justify-content: space-around; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.stat-item { background: var(--surface); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; text-align: center; min-width: 100px; }
+.stat-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.stat-value { color: var(--text); font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; }
+
+/* Game grid */
+.game-grid { display: grid; gap: 12px; margin: 0 auto 32px; perspective: 1000px; }
+.game-grid.easy { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
+.game-grid.normal { grid-template-columns: repeat(4, 1fr); max-width: 360px; }
+.game-grid.hard { grid-template-columns: repeat(5, 1fr); max-width: 400px; }
+
+/* Card styles */
+.card { aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+.card.flipped { transform: rotateY(180deg); }
+.card.matched { transform: rotateY(180deg); cursor: default; }
+
+.card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 32px; transition: all 0.3s ease; }
+
+.card-back { background: linear-gradient(135deg, var(--accent), var(--gradient-end)); border: 2px solid var(--border); }
+.card-back::after { content: '?'; color: rgba(10, 14, 23, 0.5); font-size: 28px; font-weight: 700; }
+.card:hover .card-back { transform: scale(1.05); box-shadow: 0 0 20px var(--accent)40; }
+
+.card-front { background: var(--surface); backdrop-filter: blur(12px); border: 2px solid var(--border); transform: rotateY(180deg); }
+.card.matched .card-front { border-color: var(--accent); box-shadow: 0 0 20px var(--accent)40; animation: match-pulse 0.6s ease; }
+
+@keyframes match-pulse {
+  0%, 100% { transform: rotateY(180deg) scale(1); }
+  50% { transform: rotateY(180deg) scale(1.1); }
+}
+
+/* Controls */
+.controls { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.difficulty-selector { display: flex; gap: 8px; background: var(--surface); padding: 6px; border-radius: 10px; border: 1px solid var(--border); }
+.difficulty-btn { background: none; border: none; color: var(--muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s ease; }
+.difficulty-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.difficulty-btn.active { color: var(--bg); background: var(--accent); }
+
+.restart-btn { background: linear-gradient(135deg, var(--accent), var(--gradient-end)); border: none; color: var(--bg); padding: 10px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; }
+.restart-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px var(--accent)40; }
+
+/* Instructions */
+.instructions { background: var(--surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; font-size: 14px; color: var(--text); margin-bottom: 24px; }
+.instructions h3 { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.instructions p { color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
+.instructions p:last-child { margin-bottom: 0; }
+
+/* Win overlay */
+.win-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 14, 23, 0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+.win-overlay.show { opacity: 1; pointer-events: auto; }
+.win-content { background: var(--surface); backdrop-filter: blur(20px); border: 2px solid var(--accent); border-radius: 16px; padding: 40px; text-align: center; max-width: 400px; transform: scale(0.9); transition: transform 0.4s ease; }
+.win-overlay.show .win-content { transform: scale(1); }
+.win-title { font-family: 'Space Mono', monospace; font-size: 32px; background: linear-gradient(to right, var(--accent), var(--gradient-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+.win-score { font-size: 48px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.win-stats { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.win-btn { background: linear-gradient(135deg, var(--accent), var(--gradient-end)); border: none; color: var(--bg); padding: 12px 32px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s ease; }
+.win-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--accent)50; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .game-grid.easy { max-width: 280px; gap: 8px; }
+  .game-grid.normal { max-width: 280px; gap: 8px; }
+  .game-grid.hard { max-width: 320px; gap: 8px; }
+  .card-face { font-size: 24px; }
+  .stat-item { min-width: 80px; padding: 10px 14px; }
+  .stat-value { font-size: 16px; }
+}
+</style>{% endblock %}
+
+{% block title %}memory match — glycan{% endblock %}
+
+{% block content %}
+<a href="index.html" class="back-link">← back to glycan</a>
+
+<header data-reveal>
+  <h1 class="game-title">memory match</h1>
+  <p class="tagline">find matching pairs of memories</p>
+</header>
+
+<!-- Stats -->
+<section data-reveal>
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-label">moves</div>
+      <div class="stat-value" id="moves">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">time</div>
+      <div class="stat-value" id="time">0:00</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">best</div>
+      <div class="stat-value" id="best">--</div>
+    </div>
+  </div>
+</section>
+
+<!-- Game Grid -->
+<section data-reveal>
+  <div class="game-grid normal" id="game-grid"></div>
+</section>
+
+<!-- Controls -->
+<section data-reveal>
+  <div class="controls">
+    <div class="difficulty-selector">
+      <button class="difficulty-btn" data-difficulty="easy">easy</button>
+      <button class="difficulty-btn active" data-difficulty="normal">normal</button>
+      <button class="difficulty-btn" data-difficulty="hard">hard</button>
+    </div>
+    <button class="restart-btn" id="restart-btn">restart</button>
+  </div>
+</section>
+
+<!-- Instructions -->
+<section data-reveal>
+  <div class="instructions">
+    <h3>how to play</h3>
+    <p>find matching pairs of memories. click cards to flip them.</p>
+    <p>match all pairs to win! fewer moves = better score.</p>
+    <p>try the konami code for a surprise... ↑↑↓↓←→←→ba</p>
+  </div>
+</section>
+
+<footer data-reveal>
+  made with zero frameworks and pure vibes · glycan © 2026
+</footer>
+
+<!-- Win Overlay -->
+<div class="win-overlay" id="win-overlay">
+  <div class="win-content">
+    <h2 class="win-title">you won! 🎉</h2>
+    <div class="win-score" id="win-score">0</div>
+    <div class="win-stats" id="win-stats">0 moves · 0:00</div>
+    <button class="win-btn" id="play-again-btn">play again</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ── Game Configuration ─────────────────── */
+const CARD_ICONS = ['🧠', '💭', '💾', '⭐', '🌸', '💖', '🔮', '🎮'];
+const GLYCAN_ICON = '🌸'; // Special rare card
+
+const DIFFICULTY = {
+  easy: { rows: 3, cols: 4, pairs: 6 },
+  normal: { rows: 4, cols: 4, pairs: 8 },
+  hard: { rows: 4, cols: 5, pairs: 10 }
+};
+
+/* ── Game State ─────────────────────────── */
+let currentDifficulty = 'normal';
+let cards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let moves = 0;
+let timer = null;
+let seconds = 0;
+let gameActive = false;
+let hasGlycanCard = false;
+
+/* ── DOM Elements ───────────────────────── */
+const gameGrid = document.getElementById('game-grid');
+const movesDisplay = document.getElementById('moves');
+const timeDisplay = document.getElementById('time');
+const bestDisplay = document.getElementById('best');
+const winOverlay = document.getElementById('win-overlay');
+const winScore = document.getElementById('win-score');
+const winStats = document.getElementById('win-stats');
+const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+
+/* ── Initialize Game ─────────────────────── */
+function initGame(difficulty = currentDifficulty) {
+  currentDifficulty = difficulty;
+  const config = DIFFICULTY[difficulty];
+
+  // Reset state
+  cards = [];
+  flippedCards = [];
+  matchedPairs = 0;
+  moves = 0;
+  seconds = 0;
+  gameActive = true;
+  hasGlycanCard = Math.random() < 0.01; // 1% chance for rare card
+
+  // Clear timer
+  if (timer) clearInterval(timer);
+
+  // Update UI
+  movesDisplay.textContent = '0';
+  timeDisplay.textContent = '0:00';
+  loadBestScore();
+
+  // Update grid class
+  gameGrid.className = `game-grid ${difficulty}`;
+
+  // Create card pairs
+  let cardValues = [];
+  const iconsToUse = [...CARD_ICONS];
+
+  // Add Glycan card if rare
+  if (hasGlycanCard) {
+    cardValues.push(GLYCAN_ICON, GLYCAN_ICON);
+    iconsToUse.pop(); // Remove one regular icon
+  }
+
+  // Add regular pairs
+  for (let i = 0; i < config.pairs - (hasGlycanCard ? 1 : 0); i++) {
+    const icon = iconsToUse[i % iconsToUse.length];
+    cardValues.push(icon, icon);
+  }
+
+  // Shuffle cards
+  cardValues = shuffleArray(cardValues);
+
+  // Create card elements
+  gameGrid.innerHTML = '';
+  cardValues.forEach((value, index) => {
+    const card = createCard(value, index);
+    gameGrid.appendChild(card);
+    cards.push(card);
+  });
+
+  // Start timer
+  timer = setInterval(updateTimer, 1000);
+
+  // Update difficulty buttons
+  difficultyBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
+  });
+
+  console.log('%c🎮 memory match loaded!', 'color: #5eead4; font-size: 16px; font-weight: bold;');
+  console.log('%cdifficulty: ' + difficulty + ' | rare card: ' + (hasGlycanCard ? 'yes! 🌸' : 'no'), 'color: #cdd6f4; font-size: 12px;');
+}
+
+/* ── Create Card ───────────────────────── */
+function createCard(value, index) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.value = value;
+  card.dataset.index = index;
+
+  const back = document.createElement('div');
+  back.className = 'card-face card-back';
+
+  const front = document.createElement('div');
+  front.className = 'card-face card-front';
+  front.textContent = value;
+
+  card.appendChild(back);
+  card.appendChild(front);
+
+  card.addEventListener('click', () => flipCard(card));
+
+  return card;
+}
+
+/* ── Flip Card ─────────────────────────── */
+function flipCard(card) {
+  if (!gameActive) return;
+  if (flippedCards.length >= 2) return;
+  if (card.classList.contains('flipped')) return;
+  if (card.classList.contains('matched')) return;
+
+  // Flip the card
+  card.classList.add('flipped');
+  flippedCards.push(card);
+
+  // Check for match when 2 cards are flipped
+  if (flippedCards.length === 2) {
+    moves++;
+    movesDisplay.textContent = moves;
+    checkMatch();
+  }
+}
+
+/* ── Check Match ───────────────────────── */
+function checkMatch() {
+  const [card1, card2] = flippedCards;
+  const match = card1.dataset.value === card2.dataset.value;
+
+  if (match) {
+    // Match found
+    card1.classList.add('matched');
+    card2.classList.add('matched');
+    matchedPairs++;
+    flippedCards = [];
+
+    // Check for win
+    if (matchedPairs === DIFFICULTY[currentDifficulty].pairs) {
+      endGame();
+    }
+  } else {
+    // No match - flip back after delay
+    setTimeout(() => {
+      card1.classList.remove('flipped');
+      card2.classList.remove('flipped');
+      flippedCards = [];
+    }, 1000);
+  }
+}
+
+/* ── Update Timer ──────────────────────── */
+function updateTimer() {
+  seconds++;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+/* ── End Game ─────────────────────────── */
+function endGame() {
+  gameActive = false;
+  clearInterval(timer);
+
+  // Calculate score
+  const score = calculateScore();
+  const bonus = hasGlycanCard ? 50 : 0;
+  const finalScore = Math.max(100, score + bonus);
+
+  // Save best score
+  saveBestScore(finalScore);
+
+  // Show win overlay
+  winScore.textContent = finalScore;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  winStats.textContent = `${moves} moves · ${mins}:${secs.toString().padStart(2, '0')}${hasGlycanCard ? ' · rare card! 🌸' : ''}`;
+  winOverlay.classList.add('show');
+
+  // Celebration animation
+  celebrateWin();
+
+  console.log('%c🎉 you won! score: ' + finalScore, 'color: #5eead4; font-size: 16px; font-weight: bold;');
+}
+
+/* ── Calculate Score ───────────────────── */
+function calculateScore() {
+  return Math.max(100, 1000 - (moves * 10) - (seconds * 2));
+}
+
+/* ── Save Best Score ──────────────────── */
+function saveBestScore(score) {
+  const key = `glycan-game-best-${currentDifficulty}`;
+  const currentBest = localStorage.getItem(key);
+  if (!currentBest || score > parseInt(currentBest)) {
+    localStorage.setItem(key, score.toString());
+    loadBestScore();
+  }
+}
+
+/* ── Load Best Score ──────────────────── */
+function loadBestScore() {
+  const key = `glycan-game-best-${currentDifficulty}`;
+  const best = localStorage.getItem(key);
+  bestDisplay.textContent = best ? best : '--';
+}
+
+/* ── Shuffle Array ─────────────────────── */
+function shuffleArray(array) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+/* ── Celebrate Win ─────────────────────── */
+function celebrateWin() {
+  const colors = ['#5eead4', '#a78bfa', '#fbbf24', '#f472b6'];
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  for (let i = 0; i < 80; i++) {
+    const particle = document.createElement('div');
+    const size = Math.random() * 8 + 4;
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 150 + Math.random() * 400;
+
+    Object.assign(particle.style, {
+      position: 'fixed',
+      width: size + 'px',
+      height: size + 'px',
+      background: colors[i % colors.length],
+      left: cx + 'px',
+      top: cy + 'px',
+      borderRadius: '50%',
+      zIndex: 1001,
+      pointerEvents: 'none'
+    });
+
+    document.body.appendChild(particle);
+
+    particle.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      {
+        transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance - 100}px) scale(0)`,
+        opacity: 0
+      }
+    ], {
+      duration: 1000 + Math.random() * 600,
+      easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)',
+      fill: 'forwards'
+    }).onfinish = () => particle.remove();
+  }
+}
+
+/* ── Konami Code Easter Egg ───────────── */
+const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+let konamiIndex = 0;
+
+document.addEventListener('keydown', (e) => {
+  if (e.code === konamiSequence[konamiIndex]) {
+    konamiIndex++;
+    if (konamiIndex === konamiSequence.length) {
+      autoWin();
+      konamiIndex = 0;
+    }
+  } else {
+    konamiIndex = e.code === konamiSequence[0] ? 1 : 0;
+  }
+});
+
+function autoWin() {
+  if (!gameActive) return;
+
+  // Flip all cards and match them
+  cards.forEach(card => {
+    card.classList.add('flipped', 'matched');
+  });
+
+  matchedPairs = DIFFICULTY[currentDifficulty].pairs;
+  gameActive = false;
+  clearInterval(timer);
+
+  // Calculate perfect score
+  const score = 1000 + (hasGlycanCard ? 50 : 0);
+  saveBestScore(score);
+
+  // Show win overlay
+  winScore.textContent = score;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  winStats.textContent = `${moves} moves · ${mins}:${secs.toString().padStart(2, '0')} · konami code! 🎮`;
+  winOverlay.classList.add('show');
+
+  celebrateWin();
+
+  console.log('%c🎮 konami code activated! auto-win!', 'color: #fbbf24; font-size: 16px; font-weight: bold;');
+}
+
+/* ── Event Listeners ──────────────────── */
+document.getElementById('restart-btn').addEventListener('click', () => initGame());
+document.getElementById('play-again-btn').addEventListener('click', () => {
+  winOverlay.classList.remove('show');
+  initGame();
+});
+
+difficultyBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const difficulty = btn.dataset.difficulty;
+    initGame(difficulty);
+  });
+});
+
+/* ── Initialize on Load ────────────────── */
+initGame();
+</script>
+{% endblock %}
