@@ -19,9 +19,9 @@
 .game-grid.hard { grid-template-columns: repeat(5, 1fr); max-width: 380px; }
 
 /* Card styles */
-.card { width: 100%; aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-.card.flipped { transform: rotateY(180deg); }
-.card.matched { transform: rotateY(180deg); cursor: default; }
+.game-grid .card { width: 100%; aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; backdrop-filter: none; -webkit-backdrop-filter: none; background: transparent; border: none; border-radius: 0; padding: 0; }
+.game-grid .card.flipped { transform: rotateY(180deg); }
+.game-grid .card.matched { transform: rotateY(180deg); cursor: default; }
 
 .card-face { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; transition: all 0.3s ease; }
 
