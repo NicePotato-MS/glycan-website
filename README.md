@@ -71,9 +71,9 @@ python3 build.py
    - Create a new Pages project
    - Connect to your Git repository
    - Build settings:
-     - Build command: `python3 build.py`
-     - Build output directory: `dist`
-   - Deploy!
+     - **Build command:** `pip install -r requirements.txt && python3 build.py`
+     - **Build output directory:** `dist`
+   - Click **Save and Deploy**
 
 ### Other Static Hosts
 
