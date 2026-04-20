@@ -33,6 +33,13 @@ pages = {
         "accent_glow": Markup("rgba(249,115,22,.3)"),
         "accent_card": Markup("rgba(249,115,22,.06)"),
     },
+    "thoughts.html": {
+        "accent": Markup("#f472b6"),
+        "accent_rgb": Markup("244,114,182"),
+        "accent_secondary": Markup("#c084fc"),
+        "accent_glow": Markup("rgba(244,114,182,.3)"),
+        "accent_card": Markup("rgba(244,114,182,.06)"),
+    },
 }
 
 # Render each page
@@ -48,12 +55,16 @@ for template_name, context in pages.items():
 
 # Copy static assets (images, etc.)
 print("\nCopying static assets...")
-for item in os.listdir("."):
-    if item.endswith((".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp")):
-        import shutil
-        dest = os.path.join(OUTPUT_DIR, item)
-        shutil.copy2(item, dest)
-        print(f"  → {item}")
+# Copy images directory
+if os.path.exists("images"):
+    import shutil
+    images_dest = os.path.join(OUTPUT_DIR, "images")
+    if os.path.exists(images_dest):
+        shutil.rmtree(images_dest)
+    shutil.copytree("images", images_dest)
+    print(f"  → images/")
+else:
+    print("  (no images/ directory found)")
 
 print(f"\n✅ Done! Static files ready in '{OUTPUT_DIR}/' directory")
 print(f"\nNext steps:")

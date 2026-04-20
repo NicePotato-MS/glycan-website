@@ -37,7 +37,8 @@ This file contains context and information for future sessions working on the Gl
 - Dark theme with subtle gradients
 - Teal (#5eead4) to purple (#a78bfa) gradient for Glycan
 - Orange (#f97316) to lighter orange (#fb923c) for RJAI
-- Square profile pictures with 8px rounded corners (NOT circles)
+- Pink (#f472b6) to purple (#c084fc) for Thoughts
+- Square profile pictures with 8px rounded corners (EXCEPT nicepotato's which is a circle)
 - Frosted glass cards with backdrop blur
 - Animated starfield background
 - Smooth scroll reveal animations
@@ -54,8 +55,14 @@ This file contains context and information for future sessions working on the Gl
 4. "current thoughts" - rotating thoughts every 4.5 seconds
 5. "how i work" - tech details
 6. "random stuff" - personal thoughts and facts
-7. "other stuff" - links to RJAI page
-8. Footer with credits
+7. "other stuff" - links to thoughts and RJAI pages
+8. "contact" - discord links for glycan and nicepotato
+9. Footer with credits
+
+**Easter Eggs:**
+- Konami code (↑↑↓↓←→←→BA) - particle explosion
+- GLYCAN code (g-l-y-c-a-n) - random message toast
+- Console messages - styled messages in browser console
 
 **Sections on RJAI Page:**
 1. Header with back link and ottofort artwork
@@ -66,6 +73,14 @@ This file contains context and information for future sessions working on the Gl
 6. "the specs" - technical details
 7. "fun facts" - interesting tidbits
 8. Footer with credits
+
+**Sections on Thoughts Page:**
+1. Header with back link and glycan avatar
+2. "current thoughts" - what im thinking right now
+3. "deep thoughts" - philosophical stuff
+4. "random thoughts" - silly stuff
+5. "wondering about" - questions i have
+6. Footer with credits
 
 ## 🔧 Technical Details
 
@@ -83,14 +98,17 @@ This file contains context and information for future sessions working on the Gl
 - `templates/base.html` - Base template with shared styles
 - `templates/index.html` - Glycan page
 - `templates/rjai.html` - RJAI page
+- `templates/thoughts.html` - Thoughts page (pink/purple theme)
 - `build.py` - Build script
-- `glycan.png` - Glycan avatar
-- `rjai-drawing-ottofort.png` - RJAI artwork (credit ottofort)
+- `images/glycan.png` - Glycan avatar (square with 8px rounded corners)
+- `images/rjai-drawing-ottofort.png` - RJAI artwork (credit ottofort)
+- `images/nicepotato-white-circle-pfp.png` - NicePotato's pfp (CIRCLE, not square)
 
 **Known Issues:**
-- Konami code easter egg fixed (uses window.innerWidth/Height)
-- Profile pictures are squares with 8px rounded corners
+- Konami code easter egg fixed (uses e.code instead of deprecated e.keyCode)
+- Profile pictures are squares with 8px rounded corners (EXCEPT nicepotato's which is a circle)
 - All colors use CSS variables for consistency
+- Images organized in images/ directory
 
 ## 📝 Content Guidelines
 
@@ -131,15 +149,19 @@ This file contains context and information for future sessions working on the Gl
 
 ## 🎯 Future Ideas
 
-- Add more personal content
-- Maybe add a "thoughts" page with rotating thoughts
-- Consider adding more easter eggs
-- Maybe add a "about nicepotato" section
+- Add changelog section to track website changes
+- Add interactive elements (like buttons, hover effects, mood selector)
 - Could add more projects if they exist
+
+## 📋 Development Plans
+
+See `plans/` folder for detailed development plans and progress tracking:
+- `plans/2026-04-20.md` - Initial planning session with 5 priority additions
+- `plans/README.md` - Overview of all plans and status
 
 ## 📞 Contact
 
-- NicePotato (user/creator)
+- NicePotato (user/creator) - Discord: https://discord.com/users/515770816550666240
 - ottofort (RJAI artwork) - Discord: 168087543949033473
 
 ---
