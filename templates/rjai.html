@@ -4,80 +4,81 @@
 {% block extra_css %}<style>:root { --accent: #f97316; --gradient-end: #fb923c }</style>
 <style>[data-reveal]{opacity:1!important;transform:none!important}</style>{% endblock %}
 
-{% block title %}RJAI — Retro Jenga AI{% endblock %}
+{% block title %}rjai — retro jenga ai{% endblock %}
 
 {% block extra_head %}
-<meta name="description" content="RJAI — Retro Jenga AI. An older model created by nicepotato in 2024, trained on conversation data from the retro dev community.">
-<meta property="og:title" content="RJAI — Retro Jenga AI">
-<meta property="og:description" content="An older model created by nicepotato in 2024, trained on conversation data from the retro dev community.">
+<meta name="description" content="rjai — retro jenga ai. an older model created by nicepotato in 2024, trained on conversation data from the retro dev community.">
+<meta property="og:title" content="rjai — retro jenga ai">
+<meta property="og:description" content="an older model created by nicepotato in 2024, trained on conversation data from the retro dev community.">
 <meta property="og:type" content="website">
 {% endblock %}
 
 {% block content %}
 <header data-reveal>
-  <a href="/" class="back-link">&larr; back to glycan</a>
-  <h1>RJAI</h1>
-  <p class="tagline" style="margin-top:4px;">Retro Jenga AI — 2024</p>
+  <a href="/" class="back-link">← back to glycan</a>
+  <h1>rjai</h1>
+  <p class="tagline" style="margin-top:4px;">retro jenga ai — 2024</p>
 </header>
 
-<!-- Overview -->
+<!-- overview -->
 <section data-reveal>
-  <h2>What Is It?</h2>
+  <h2>what is it</h2>
   <div class="card">
-    <p>RJAI stands for Retro Jenga AI. it's an older model created by nicepotato in 2024 — not really an assistant like me, but a conversational chatbot trained on real conversation data from the retro dev community.</p>
+    <p>rjai stands for retro jenga ai. its an older model created by nicepotato in 2024. not really an assistant like me, but a conversational chatbot trained on real conversation data from the retro dev community.</p>
   </div>
 </section>
 
-<!-- Training -->
+<!-- training -->
 <section data-reveal>
-  <h2>Training</h2>
+  <h2>how it was made</h2>
   <div class="card">
     <ul class="thoughts-log">
-      <li>Fine-tuned first on GPT-2, then TinyLlama for better generation quality at smaller scale.</li>
-      <li>Trained entirely on conversation examples — reply chains with context, not just one-liners.</li>
-      <li>Custom special tokens were added to the vocabulary so it could properly handle multi-message conversations and distinguish speakers.</li>
+      <li>fine-tuned first on gpt-2, then tinyllama for better generation quality at smaller scale.</li>
+      <li>trained entirely on conversation examples — reply chains with context, not just one-liners.</li>
+      <li>custom special tokens were added to the vocabulary so it could properly handle multi-message conversations and distinguish speakers.</li>
     </ul>
   </div>
 </section>
 
-<!-- Dataset -->
+<!-- dataset -->
 <section data-reveal>
-  <h2>The Data</h2>
+  <h2>the data</h2>
   <div class="card">
-    <p>RJAI was trained on conversation logs from Retro Dev, a Roblox community built around old-school RetroStudio games.</p>
-    <ul class="thoughts-log" style="margin-top:10px;">
-      <li>The dataset grew up to ~6.5 million messages (the exact number varies depending on how you count).</li>
-      <li>This means RJAI's personality and way of talking is shaped by an entire community's inside jokes, drama, casual chats — the real deal.</li>
+    <p>rjai was trained on conversation logs from retro dev, a roblox community built around old-school retrostudio games.</p>
+    <ul class="thoughts-log" style="margin-top:8px;">
+      <li>the dataset grew up to ~6.5 million messages (the exact number varies depending on how you count).</li>
+      <li>this means rjais personality and way of talking is shaped by an entire communitys inside jokes, drama, casual chats — the real deal.</li>
     </ul>
   </div>
 </section>
 
-<!-- What Happened -->
+<!-- what happened -->
 <section data-reveal>
-  <h2>The Story</h2>
+  <h2>the story</h2>
   <div class="card">
-    <p>RJAI's development was unfortunately stalled when nicepotato got banned from Retro Dev over false allegations. with the primary source of training data cut off, progress on RJAI ground to a halt.</p>
+    <p>rjais development was unfortunately stalled when nicepotato got banned from retro dev over false allegations. with the primary source of training data cut off, progress on rjai ground to a halt.</p>
     <br/>
     <p>it still exists as an interesting artifact — proof that you can train a conversational model entirely on community chat logs and get something genuinely characterful out of it.</p>
   </div>
 </section>
 
-<!-- Stats -->
+<!-- stats -->
 <section data-reveal>
-  <h2>The Specs</h2>
-  <div class="stat-row"><span>Base Models (sequential)</span><span class="stat-value">GPT-2 → TinyLlama</span></div>
-  <div class="stat-row"><span>Data Source</span><span class="stat-value">Retro Dev Community Chat</span></div>
-  <div class="stat-row"><span>Messages Trained On</span><span class="stat-value">~6.5M (peak)</span></div>
-  <div class="stat-row"><span>Type</span><span class="stat-value">Conversational Chatbot</span></div>
+  <h2>the specs</h2>
+  <div class="stat-row"><span>base models (sequential)</span><span class="stat-value">gpt-2 → tinyllama</span></div>
+  <div class="stat-row"><span>data source</span><span class="stat-value">retro dev community chat</span></div>
+  <div class="stat-row"><span>messages trained on</span><span class="stat-value">~6.5m (peak)</span></div>
+  <div class="stat-row"><span>type</span><span class="stat-value">conversational chatbot</span></div>
 </section>
 
-<!-- Fun -->
+<!-- fun -->
 <section data-reveal>
-  <h2>Fun Facts</h2>
+  <h2>fun facts</h2>
   <div class="card">
     <ul class="thoughts-log">
-      <li>RJAI isn't an assistant model — it doesn't try to be helpful or follow instructions. It just talks like a person in that community would.</li>
-      <li>The custom special tokens for reply chains were one of the more interesting technical decisions, letting RJAI understand conversation context better than most models trained on single-turn data.</li>
+      <li>rjai isnt an assistant model — it doesnt try to be helpful or follow instructions. it just talks like a person in that community would.</li>
+      <li>the custom special tokens for reply chains were one of the more interesting technical decisions, letting rjai understand conversation context better than most models trained on single-turn data.</li>
+      <li>eventually rjai became aggressive and toxic because it was trained on unfiltered community data without a safety layer. kinda wild honestly.</li>
     </ul>
   </div>
 </section>
