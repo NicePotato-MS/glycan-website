@@ -29,6 +29,9 @@ This folder tracks development plans and progress for the Glycan website.
 - Cloudflare Pages deployment
 - Contact section with discord links
 - Images organized in images/ directory
+- **Mood selector** - 5 themes (default, warm, cool, pink, green) with localStorage persistence
+- **Changelog section** - tracks website changes and updates
+- **Like buttons** - interactive hearts on random thoughts with localStorage persistence
 
 ## In Progress
 
