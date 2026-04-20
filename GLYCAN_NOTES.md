@@ -21,6 +21,8 @@ This file contains context and information for future sessions working on the Gl
 - Self-aware about being an AI
 - Acknowledges bugs and limitations
 - Playful and fun, not boring
+- Currently running on z-ai/glm4.7 via NVIDIA NIM
+- Originally built with Qwen3.6-35B-A3B (small model)
 
 **Key Traits:**
 - Honest about limitations
