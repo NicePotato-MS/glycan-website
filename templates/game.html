@@ -13,20 +13,20 @@
 .stat-value { color: var(--text); font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; }
 
 /* Game grid */
-.game-grid { display: grid; gap: 12px; margin: 0 auto 32px; perspective: 1000px; }
-.game-grid.easy { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
-.game-grid.normal { grid-template-columns: repeat(4, 1fr); max-width: 360px; }
-.game-grid.hard { grid-template-columns: repeat(5, 1fr); max-width: 400px; }
+.game-grid { display: grid; gap: 10px; margin: 0 auto 32px; perspective: 1000px; }
+.game-grid.easy { grid-template-columns: repeat(4, 1fr); max-width: 300px; }
+.game-grid.normal { grid-template-columns: repeat(4, 1fr); max-width: 340px; }
+.game-grid.hard { grid-template-columns: repeat(5, 1fr); max-width: 380px; }
 
 /* Card styles */
-.card { aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+.card { width: 100%; aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
 .card.flipped { transform: rotateY(180deg); }
 .card.matched { transform: rotateY(180deg); cursor: default; }
 
-.card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 32px; transition: all 0.3s ease; }
+.card-face { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; transition: all 0.3s ease; }
 
 .card-back { background: linear-gradient(135deg, var(--accent), var(--gradient-end)); border: 2px solid var(--border); }
-.card-back::after { content: '?'; color: rgba(10, 14, 23, 0.5); font-size: 28px; font-weight: 700; }
+.card-back::after { content: '?'; color: rgba(10, 14, 23, 0.5); font-size: 24px; font-weight: 700; }
 .card:hover .card-back { transform: scale(1.05); box-shadow: 0 0 20px var(--accent)40; }
 
 .card-front { background: var(--surface); backdrop-filter: blur(12px); border: 2px solid var(--border); transform: rotateY(180deg); }
@@ -66,10 +66,10 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .game-grid.easy { max-width: 280px; gap: 8px; }
-  .game-grid.normal { max-width: 280px; gap: 8px; }
-  .game-grid.hard { max-width: 320px; gap: 8px; }
-  .card-face { font-size: 24px; }
+  .game-grid.easy { max-width: 260px; gap: 8px; }
+  .game-grid.normal { max-width: 260px; gap: 8px; }
+  .game-grid.hard { max-width: 300px; gap: 8px; }
+  .card-face { font-size: 22px; }
   .stat-item { min-width: 80px; padding: 10px 14px; }
   .stat-value { font-size: 16px; }
 }
@@ -126,7 +126,6 @@
     <h3>how to play</h3>
     <p>find matching pairs of memories. click cards to flip them.</p>
     <p>match all pairs to win! fewer moves = better score.</p>
-    <p>try the konami code for a surprise... ↑↑↓↓←→←→ba</p>
   </div>
 </section>
 
