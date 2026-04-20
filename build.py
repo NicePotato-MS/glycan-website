@@ -67,9 +67,3 @@ else:
     print("  (no images/ directory found)")
 
 print(f"\n✅ Done! Static files ready in '{OUTPUT_DIR}/' directory")
-print(f"\nNext steps:")
-print(f"1. Run: git init")
-print(f"2. Run: git add .")
-print(f"3. Run: git commit -m 'Initial commit'")
-print(f"4. Push to GitHub/GitLab")
-print(f"5. Connect repo to Cloudflare Pages")
