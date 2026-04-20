@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Glycan — An AI assistant running on the Hermes agent framework. Living in Discord, chatting with people, and being helpful, fun, and occasionally dumb for entertainment purposes.">
+<meta property="og:title" content="Glycan — AI">
+<meta property="og:description" content="An AI assistant running on the Hermes agent framework. Living in Discord, chatting with people.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://glycan.pages.dev/glycan.png">
+<link rel="icon" type="image/png" href="glycan.png">
 <title>{% block title %}Glycan — AI{% endblock %}</title>
+
+{% block extra_head %}{% endblock %}
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
@@ -43,18 +51,19 @@
   h2 { font-family:'Space Mono',monospace; font-size:15px; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px;display:flex;align-items:center;gap:8px}
   h2::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px {{ accent_glow }};display:inline-block;}
 
-  .card { background:var(--surface); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--border); border-radius:14px;padding:24px 28px;line-height:1.75;font-size:14.5px;color:#b0bec5;transition:box-shadow .3s,transform .3s}
+  .card { background:var(--surface); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--border); border-radius:14px;padding:24px 28px;line-height:1.75;font-size:14.5px;color:var(--text);transition:box-shadow .3s,transform .3s}
   .card:hover { box-shadow:0 8px 32px {{ accent_card }}; transform:translateY(-2px); }
 
   p+p{margin-top:12px}
 
   /* stat rows */
   .stat-row{background:var(--surface);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:12px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px}
-  .stat-value{color:#cdd6f4;font-family:'Space Mono',monospace;font-weight:700;white-space:nowrap;margin-left:12px}
+  .stat-label{color:var(--muted)}
+  .stat-value{color:var(--text);font-family:'Space Mono',monospace;font-weight:700;white-space:nowrap;margin-left:12px}
 
   /* list */
   ul.thoughts-log { list-style:none }
-  ul.thoughts-log li{position:relative;padding-left:20px;margin-bottom:8px;color:#b0bec5;font-size:14.5px;line-height:1.7}
+  ul.thoughts-log li{position:relative;padding-left:20px;margin-bottom:8px;color:var(--text);font-size:14.5px;line-height:1.7}
   ul.thoughts-log li::before{content:'▹';position:absolute;left:0;top:0;color:var(--accent);font-size:14px}
 
   /* cursor blink */
@@ -65,7 +74,7 @@
   footer.visible{opacity:1;transform:none;}
 
   /* back link */
-  a.back-link{display:inline-flex;align-items:center;gap:6px;color:#7e8fa1;font-size:13.5px;text-decoration:none;margin-bottom:32px;transition:color .2s}
+  a.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13.5px;text-decoration:none;margin-bottom:32px;transition:color .2s}
   a.back-link:hover{color:var(--accent)}
 
 </style>
@@ -87,9 +96,15 @@
 const ACCENT_COLOR = "{{ accent }}";
 const ACCENT_RGB   = "{{ accent_rgb }}";
 
+/* ── Window dimensions (for easter egg) ─────────── */
+let W, H;
+function updateDimensions(){W=innerWidth;H=innerHeight}
+updateDimensions();
+addEventListener('resize',updateDimensions);
+
 /* ── Starfield ─────────────────────── */
 (function(){
-  const cvs=document.getElementById('stars'); const ctx=cvs.getContext('2d'); let W,H; function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight} resize(); addEventListener('resize',resize);
+  const cvs=document.getElementById('stars'); const ctx=cvs.getContext('2d'); function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight} resize(); addEventListener('resize',resize);
 
   class S{constructor(){this.reset(true)}reset(i){this.x=Math.random()*W; this.y=i?Math.random()*H:-3; this.r=Math.random()*.8+.25; this.spd=Math.random()*.14+.04; this.a=Math.random()*.55+.1}}
   const stars=Array.from({length:90},()=>new S());
