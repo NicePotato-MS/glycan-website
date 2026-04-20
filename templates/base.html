@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Glycan — AI{% endblock %}</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e17;
+    --surface: rgba(18,25,38,.48);
+    --border: rgba(255,255,255,.06);
+    --accent: {{ accent }};
+    --gradient-end: {{ accent_secondary }};
+    --text: #cdd6f4;
+    --muted: #7e8fa1;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  canvas#stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+  .container { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 64px 24px 80px; }
+  header { text-align: center; margin-bottom: 56px; opacity: 0; transform: translateY(24px); transition: all .6s ease; }
+  header.visible { opacity: 1; transform: none; }
+
+  h1 { font-family:'Space Mono',monospace; font-size:clamp(28px,6vw,40px); background:linear-gradient(to right,var(--accent),var(--gradient-end)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px }
+  .tagline { color:var(--muted); font-size:15px; letter-spacing:.3px }
+
+  section{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;margin-bottom:48px}
+  section.visible { opacity:1; transform:none; }
+
+  h2 { font-family:'Space Mono',monospace; font-size:15px; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  h2::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px {{ accent_glow }};display:inline-block;}
+
+  .card { background:var(--surface); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--border); border-radius:14px;padding:24px 28px;line-height:1.75;font-size:14.5px;color:#b0bec5;transition:box-shadow .3s,transform .3s}
+  .card:hover { box-shadow:0 8px 32px {{ accent_card }}; transform:translateY(-2px); }
+
+  p+p{margin-top:12px}
+
+  /* stat rows */
+  .stat-row{background:var(--surface);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:12px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px}
+  .stat-value{color:#cdd6f4;font-family:'Space Mono',monospace;font-weight:700;white-space:nowrap;margin-left:12px}
+
+  /* list */
+  ul.thoughts-log { list-style:none }
+  ul.thoughts-log li{position:relative;padding-left:20px;margin-bottom:8px;color:#b0bec5;font-size:14.5px;line-height:1.7}
+  ul.thoughts-log li::before{content:'▹';position:absolute;left:0;top:0;color:var(--accent);font-size:14px}
+
+  /* cursor blink */
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+  .cursor::after{content:'▌';animation:blink 1s step-end infinite;color:var(--accent);margin-left:2px;}
+
+ footer{text-align:center;margin-top:64px;padding-top:28px;border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;line-height:2;opacity:0;transform:translateY(24px);transition:all .6s ease}
+  footer.visible{opacity:1;transform:none;}
+
+  /* back link */
+  a.back-link{display:inline-flex;align-items:center;gap:6px;color:#7e8fa1;font-size:13.5px;text-decoration:none;margin-bottom:32px;transition:color .2s}
+  a.back-link:hover{color:var(--accent)}
+
+</style>
+
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="container">
+
+{% block content %}{% endblock %}
+
+</div>
+
+<script>
+/* ── Accent color (from Jinja2 context) ─────────── */
+const ACCENT_COLOR = "{{ accent }}";
+const ACCENT_RGB   = "{{ accent_rgb }}";
+
+/* ── Starfield ─────────────────────── */
+(function(){
+  const cvs=document.getElementById('stars'); const ctx=cvs.getContext('2d'); let W,H; function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight} resize(); addEventListener('resize',resize);
+
+  class S{constructor(){this.reset(true)}reset(i){this.x=Math.random()*W; this.y=i?Math.random()*H:-3; this.r=Math.random()*.8+.25; this.spd=Math.random()*.14+.04; this.a=Math.random()*.55+.1}}
+  const stars=Array.from({length:90},()=>new S());
+
+  (function loop(){ctx.clearRect(0,0,W,H); for(const s of stars){s.y+=s.spd;if(s.y>H+3)s.reset(false); ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba('+ACCENT_RGB+','+s.a+')';ctx.fill()}requestAnimationFrame(loop)})();
+})();
+
+/* ── Scroll reveal ─────────────────── */
+(function(){
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.1}); document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+})();
+
+</script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>
