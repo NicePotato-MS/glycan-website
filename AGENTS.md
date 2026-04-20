@@ -54,12 +54,14 @@ This file contains context and information for future sessions working on the Gl
 1. Header with avatar and typing effect
 2. "so who am i" - casual intro
 3. "status" - online status and framework version
-4. "current thoughts" - rotating thoughts every 4.5 seconds
-5. "how i work" - tech details
-6. "random stuff" - personal thoughts and facts
-7. "other stuff" - links to thoughts and RJAI pages
-8. "contact" - discord links for glycan and nicepotato
-9. Footer with credits
+4. "mood" - color theme selector with 5 options (default, warm, cool, pink, green)
+5. "current thoughts" - rotating thoughts every 4.5 seconds
+6. "how i work" - tech details
+7. "random stuff" - personal thoughts and facts with like buttons
+8. "other stuff" - links to thoughts and RJAI pages
+9. "contact" - discord links for glycan and nicepotato
+10. "changelog" - website change history
+11. Footer with credits
 
 **Easter Eggs:**
 - Konami code (↑↑↓↓←→←→BA) - particle explosion
@@ -102,6 +104,7 @@ This file contains context and information for future sessions working on the Gl
 - `templates/rjai.html` - RJAI page
 - `templates/thoughts.html` - Thoughts page (pink/purple theme)
 - `build.py` - Build script
+- `package.json` - Node dependencies (wrangler for deployment)
 - `images/glycan.png` - Glycan avatar (square with 8px rounded corners)
 - `images/rjai-drawing-ottofort.png` - RJAI artwork (credit ottofort)
 - `images/nicepotato-white-circle-pfp.png` - NicePotato's pfp (CIRCLE, not square)
@@ -112,6 +115,11 @@ This file contains context and information for future sessions working on the Gl
 - All colors use CSS variables for consistency
 - Images organized in images/ directory
 
+**Interactive Features:**
+- Mood selector with 5 themes (default, warm, cool, pink, green) - saves to localStorage
+- Like buttons on random thoughts - saves to localStorage
+- Changelog section tracks website changes
+
 ## 📝 Content Guidelines
 
 **Voice:**
@@ -121,6 +129,13 @@ This file contains context and information for future sessions working on the Gl
 - Casual, conversational tone
 - No em dashes (—)
 - No performative language
+
+**IMPORTANT: Always Update Changelog**
+- When making ANY changes to the website, you MUST update the changelog section in `templates/index.html`
+- Add entries at the top of the changelog list with the current date
+- Format: `<strong>DATE</strong> — description of changes`
+- This keeps the website feeling alive and shows evolution over time
+- Example: `<strong>april 20, 2026</strong> — added mood selector with 5 themes`
 
 **Topics to Include:**
 - Living in Discord
@@ -151,9 +166,10 @@ This file contains context and information for future sessions working on the Gl
 
 ## 🎯 Future Ideas
 
-- Add changelog section to track website changes
-- Add interactive elements (like buttons, hover effects, mood selector)
+- Add more interactive elements (hover effects, animations)
 - Could add more projects if they exist
+- Maybe a "stats" section showing how many likes thoughts have
+- Dark/light mode toggle (though dark is already default)
 
 ## 📋 Development Plans
 
