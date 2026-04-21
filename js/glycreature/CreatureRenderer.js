@@ -163,7 +163,9 @@ export class CreatureRenderer {
 
     ctx.fillStyle = colors.accent;
     ctx.beginPath();
-    ctx.arc(x, y - h * 0.65, 4, 0, Math.PI * 2);
+    // Make antenna ball proportional to body size
+    const ballSize = h * 0.04;
+    ctx.arc(x, y - h * 0.65, ballSize, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -175,6 +177,9 @@ export class CreatureRenderer {
     const eyeW = creature.eyeSize * scale;
     const eyeH = eyeW * (creature.eyeShape === 'almond' ? 0.7 : 1);
 
+    // Get eye shape from personality
+    const eyeShape = creature.getEyeShape();
+
     // Get eye positions based on count
     const eyePositions = this.getEyePositions(creature.eyeCount, x, eyeY, w * creature.eyeSpacing);
 
@@ -184,15 +189,31 @@ export class CreatureRenderer {
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
 
-      switch (creature.eyeShape) {
+      switch (eyeShape) {
         case 'round':
+        case 'happy':
+        case 'playful':
           ctx.arc(ex, ey, eyeW, 0, Math.PI * 2);
           break;
         case 'almond':
+        case 'calm':
           ctx.ellipse(ex, ey, eyeW, eyeH, 0, 0, Math.PI * 2);
           break;
         case 'oval':
+        case 'surprised':
           ctx.ellipse(ex, ey, eyeW * 0.8, eyeH * 1.2, 0, 0, Math.PI * 2);
+          break;
+        case 'angry':
+          // Angry eyes - angled
+          ctx.ellipse(ex, ey, eyeW, eyeH * 0.8, 0.2, 0, Math.PI * 2);
+          break;
+        case 'sad':
+          // Sad eyes - droopy
+          ctx.ellipse(ex, ey, eyeW, eyeH * 0.9, -0.1, 0, Math.PI * 2);
+          break;
+        case 'shy':
+          // Shy eyes - smaller, looking down
+          ctx.ellipse(ex, ey + eyeH * 0.2, eyeW * 0.8, eyeH * 0.8, 0, 0, Math.PI * 2);
           break;
       }
 
@@ -294,9 +315,12 @@ export class CreatureRenderer {
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
 
+    // Get mouth type from personality
+    const mouthType = creature.getMouthType();
+
     ctx.beginPath();
 
-    switch (creature.mouthType) {
+    switch (mouthType) {
       case 'happy':
         ctx.arc(x, mouthY - 5, creature.mouthWidth * scale, 0.2, Math.PI - 0.2);
         break;
@@ -309,6 +333,18 @@ export class CreatureRenderer {
         break;
       case 'shy':
         ctx.arc(x, mouthY + 5, creature.mouthWidth * scale * 0.3, Math.PI, 0);
+        break;
+      case 'angry':
+        // Angry mouth - frown
+        ctx.arc(x, mouthY + 8, creature.mouthWidth * scale * 0.5, Math.PI + 0.3, -0.3);
+        break;
+      case 'sad':
+        // Sad mouth - small frown
+        ctx.arc(x, mouthY + 5, creature.mouthWidth * scale * 0.4, Math.PI + 0.2, -0.2);
+        break;
+      case 'playful':
+        // Playful mouth - big smile
+        ctx.arc(x, mouthY - 8, creature.mouthWidth * scale * 1.2, 0.1, Math.PI - 0.1);
         break;
     }
 
@@ -327,13 +363,17 @@ export class CreatureRenderer {
     const tailStartY = y + h * 0.4;
     const tailWag = Math.sin(time * animMods.tailWagSpeed) * animMods.tailWagAmount;
 
+    // Make tail proportional to body size
+    const tailLength = h * 0.25;
+    const tailCurve = h * 0.15;
+
     ctx.beginPath();
     ctx.moveTo(tailStartX, tailStartY);
     ctx.quadraticCurveTo(
       tailStartX + tailWag,
-      tailStartY + 20,
+      tailStartY + tailCurve,
       tailStartX + tailWag * 1.5,
-      tailStartY + 35
+      tailStartY + tailLength
     );
     ctx.stroke();
   }

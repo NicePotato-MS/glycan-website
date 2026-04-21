@@ -49,17 +49,15 @@ export class GeneEditor {
     // Update color swatches
     this.updateColorSwatches();
 
-    // Eye genes
+    // Eye genes (eye count, size, spacing - shape is now determined by personality)
     this.setValue('gene-eye-count', this.creature.eyeCount);
     this.setValue('gene-eye-count-value', this.creature.eyeCount);
     this.setValue('gene-eye-size', this.creature.eyeSize);
     this.setValue('gene-eye-size-value', this.creature.eyeSize.toFixed(2));
-    this.setValue('gene-eye-shape', this.creature.eyeShape);
     this.setValue('gene-eye-spacing', this.creature.eyeSpacing);
     this.setValue('gene-eye-spacing-value', this.creature.eyeSpacing.toFixed(2));
 
-    // Mouth genes
-    this.setValue('gene-mouth-type', this.creature.mouthType);
+    // Mouth genes (width only - type is now determined by personality)
     this.setValue('gene-mouth-width', this.creature.mouthWidth);
     this.setValue('gene-mouth-width-value', this.creature.mouthWidth.toFixed(2));
 
@@ -286,27 +284,13 @@ export class GeneEditor {
     this.attachSlider('gene-saturation', 'saturation');
     this.attachSlider('gene-lightness', 'lightness');
 
-    // Eye controls
+    // Eye controls (count, size, spacing - shape is determined by personality)
     this.attachSlider('gene-eye-count', 'eyeCount');
     this.attachSlider('gene-eye-size', 'eyeSize');
     this.attachSlider('gene-eye-spacing', 'eyeSpacing');
 
-    const eyeShapeSelect = document.getElementById('gene-eye-shape');
-    if (eyeShapeSelect) {
-      eyeShapeSelect.addEventListener('change', (e) => {
-        this.updateGene('eyeShape', e.target.value);
-      });
-    }
-
-    // Mouth controls
+    // Mouth controls (width only - type is determined by personality)
     this.attachSlider('gene-mouth-width', 'mouthWidth');
-
-    const mouthTypeSelect = document.getElementById('gene-mouth-type');
-    if (mouthTypeSelect) {
-      mouthTypeSelect.addEventListener('change', (e) => {
-        this.updateGene('mouthType', e.target.value);
-      });
-    }
 
     // Feature toggles
     this.attachToggle('hasEars');

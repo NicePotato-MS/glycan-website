@@ -519,32 +519,11 @@
           <input type="range" class="gene-slider" id="gene-eye-spacing" min="0.15" max="0.5" step="0.01" value="0.3">
         </div>
 
-        <div class="gene-control">
-          <div class="gene-label">
-            <span>eye shape</span>
-          </div>
-          <select class="gene-select" id="gene-eye-shape">
-            <option value="round">round</option>
-            <option value="almond">almond</option>
-            <option value="oval">oval</option>
-          </select>
-        </div>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px;">eye shape is determined by personality</p>
       </div>
 
       <div class="gene-group">
         <div class="gene-group-title">mouth</div>
-
-        <div class="gene-control">
-          <div class="gene-label">
-            <span>mouth type</span>
-          </div>
-          <select class="gene-select" id="gene-mouth-type">
-            <option value="happy">happy</option>
-            <option value="calm">calm</option>
-            <option value="surprised">surprised</option>
-            <option value="shy">shy</option>
-          </select>
-        </div>
 
         <div class="gene-control">
           <div class="gene-label">
@@ -553,6 +532,8 @@
           </div>
           <input type="range" class="gene-slider" id="gene-mouth-width" min="0.08" max="0.25" step="0.01" value="0.15">
         </div>
+
+        <p style="color:var(--muted);font-size:12px;margin-top:8px;">mouth expression is determined by personality</p>
       </div>
 
       <div class="gene-group">
@@ -624,11 +605,12 @@
     <!-- Personality genes -->
     <div class="gene-panel" id="panel-personality">
       <div class="gene-group">
-        <div class="gene-group-title">traits</div>
+        <div class="gene-group-title">personality spectrum</div>
+        <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">adjust these sliders to change your creature's expression and behavior</p>
 
         <div class="gene-control">
           <div class="gene-label">
-            <span>energy</span>
+            <span>energy 😴 ↔ ⚡</span>
             <span class="gene-value" id="gene-energy-value">0.6</span>
           </div>
           <input type="range" class="gene-slider" id="gene-energy" min="0.1" max="1" step="0.05" value="0.6">
@@ -636,7 +618,7 @@
 
         <div class="gene-control">
           <div class="gene-label">
-            <span>friendliness</span>
+            <span>friendliness 😠 ↔ 🥰</span>
             <span class="gene-value" id="gene-friendliness-value">0.7</span>
           </div>
           <input type="range" class="gene-slider" id="gene-friendliness" min="0.1" max="1" step="0.05" value="0.7">
@@ -644,7 +626,7 @@
 
         <div class="gene-control">
           <div class="gene-label">
-            <span>curiosity</span>
+            <span>curiosity 😐 ↔ 🤔</span>
             <span class="gene-value" id="gene-curiosity-value">0.7</span>
           </div>
           <input type="range" class="gene-slider" id="gene-curiosity" min="0.1" max="1" step="0.05" value="0.7">
@@ -652,10 +634,19 @@
 
         <div class="gene-control">
           <div class="gene-label">
-            <span>playfulness</span>
+            <span>playfulness 😐 ↔ 🎉</span>
             <span class="gene-value" id="gene-playfulness-value">0.5</span>
           </div>
           <input type="range" class="gene-slider" id="gene-playfulness" min="0.1" max="1" step="0.05" value="0.5">
+        </div>
+      </div>
+
+      <div class="gene-group">
+        <div class="gene-group-title">expression preview</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <p style="font-size:13px;color:var(--text);margin-bottom:8px;">current expression:</p>
+          <p id="expression-preview" style="font-size:14px;color:var(--accent);font-weight:600;">balanced</p>
+          <p style="font-size:12px;color:var(--muted);margin-top:8px;">personality determines eye shape and mouth expression</p>
         </div>
       </div>
     </div>
@@ -807,6 +798,12 @@ function updateCreatureInfo() {
   if (!currentCreature) return;
   document.getElementById('creature-name').textContent = currentCreature.name;
   document.getElementById('creature-traits').textContent = PersonalitySystem.getTraitDescription(currentCreature.traits);
+
+  // Update expression preview
+  const eyeShape = currentCreature.getEyeShape();
+  const mouthType = currentCreature.getMouthType();
+  const expressionText = `${eyeShape} eyes, ${mouthType} mouth`;
+  document.getElementById('expression-preview').textContent = expressionText;
 }
 
 // Show gene panel
@@ -857,6 +854,12 @@ function breedCreatures() {
     const parent2 = Creature.fromJSON(breedingManager.getParent2());
 
     alert(`Created ${offspring.name} from ${parent1.name} and ${parent2.name}!`);
+
+    // Smooth scroll to top to see the creature
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   } catch (e) {
     alert('Error breeding creatures: ' + e.message);
   }

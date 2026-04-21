@@ -93,6 +93,84 @@ export class Creature {
   }
 
   /**
+   * Get eye shape based on personality
+   */
+  getEyeShape() {
+    const { energy, friendliness, curiosity, playfulness } = this.traits;
+
+    // Angry: low friendliness + high energy
+    if (friendliness < 0.4 && energy > 0.6) {
+      return 'angry';
+    }
+    // Sad: low friendliness + low energy
+    if (friendliness < 0.4 && energy < 0.5) {
+      return 'sad';
+    }
+    // Happy: high friendliness + high energy
+    if (friendliness > 0.6 && energy > 0.5) {
+      return 'happy';
+    }
+    // Surprised: high curiosity + high energy
+    if (curiosity > 0.7 && energy > 0.6) {
+      return 'surprised';
+    }
+    // Shy: low friendliness + high curiosity
+    if (friendliness < 0.5 && curiosity > 0.5) {
+      return 'shy';
+    }
+    // Calm: high friendliness + low energy
+    if (friendliness > 0.6 && energy < 0.5) {
+      return 'calm';
+    }
+    // Playful: high playfulness
+    if (playfulness > 0.7) {
+      return 'playful';
+    }
+
+    // Default based on energy
+    return energy > 0.5 ? 'round' : 'almond';
+  }
+
+  /**
+   * Get mouth type based on personality
+   */
+  getMouthType() {
+    const { energy, friendliness, curiosity, playfulness } = this.traits;
+
+    // Angry: low friendliness + high energy
+    if (friendliness < 0.4 && energy > 0.6) {
+      return 'angry';
+    }
+    // Sad: low friendliness + low energy
+    if (friendliness < 0.4 && energy < 0.5) {
+      return 'sad';
+    }
+    // Happy: high friendliness + high energy
+    if (friendliness > 0.6 && energy > 0.5) {
+      return 'happy';
+    }
+    // Surprised: high curiosity + high energy
+    if (curiosity > 0.7 && energy > 0.6) {
+      return 'surprised';
+    }
+    // Shy: low friendliness + high curiosity
+    if (friendliness < 0.5 && curiosity > 0.5) {
+      return 'shy';
+    }
+    // Calm: high friendliness + low energy
+    if (friendliness > 0.6 && energy < 0.5) {
+      return 'calm';
+    }
+    // Playful: high playfulness
+    if (playfulness > 0.7) {
+      return 'playful';
+    }
+
+    // Default
+    return 'calm';
+  }
+
+  /**
    * Randomize all genes
    */
   randomize() {
