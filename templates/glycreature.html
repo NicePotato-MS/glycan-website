@@ -1,0 +1,968 @@
+{% extends "base.html" %}
+
+{# Override accent colors for creature theme #}
+{% block extra_css %}<style>:root { --accent: #4ade80; --gradient-end: #22c55e }</style>
+<style>
+  /* Creature canvas container */
+  .creature-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  canvas#creature-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--gradient-end));
+    color: #0a0e17;
+    border: none;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+  }
+
+  /* Creature info */
+  .creature-info {
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .creature-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .creature-traits {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Gallery */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .gallery-item {
+    aspect-ratio: 1;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: grab;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .gallery-item:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+  }
+
+  .gallery-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+
+  .gallery-item canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Gene editor tabs */
+  .gene-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+  }
+
+  .gene-tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .gene-tab:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .gene-tab.active {
+    color: var(--accent);
+    background: var(--surface);
+    font-weight: 600;
+  }
+
+  /* Gene panel */
+  .gene-panel {
+    display: none;
+  }
+
+  .gene-panel.active {
+    display: block;
+  }
+
+  /* Gene groups */
+  .gene-group {
+    margin-bottom: 20px;
+  }
+
+  .gene-group-title {
+    font-size: 12px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  /* Gene controls */
+  .gene-control {
+    margin-bottom: 16px;
+  }
+
+  .gene-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .gene-value {
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+  }
+
+  .gene-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .gene-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+  }
+
+  .gene-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+  }
+
+  /* Gene select */
+  .gene-select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+  }
+
+  .gene-select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  /* Gene toggle */
+  .gene-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .gene-toggle-input {
+    width: 40px;
+    height: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .gene-toggle-input::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--muted);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .gene-toggle-input.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .gene-toggle-input.checked::after {
+    background: #0a0e17;
+    left: 20px;
+  }
+
+  .gene-toggle-label {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* Color picker */
+  .color-picker-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .color-swatch:hover {
+    transform: scale(1.1);
+    border-color: var(--accent);
+  }
+
+  .color-swatch.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+  }
+
+  /* Breeding slots */
+  .breeding-slots {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .breeding-slot {
+    text-align: center;
+  }
+
+  .breeding-slot-preview {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 12px;
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .breeding-slot-preview.drag-over {
+    border-color: var(--accent);
+    background: rgba(74, 222, 128, 0.1);
+  }
+
+  .breeding-slot-preview canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Trash can */
+  .trash-can {
+    width: 60px;
+    height: 60px;
+    margin: 16px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 24px;
+  }
+
+  .trash-can:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  .trash-can.drag-over {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+
+  /* Scramble button */
+  .scramble-btn {
+    background: linear-gradient(135deg, #a78bfa, #f472b6);
+    color: #0a0e17;
+    border: none;
+  }
+
+  .scramble-btn:hover {
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+  }
+</style>
+{% endblock %}
+
+{% block title %}glycreature — procedural creature generator{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="glycreature — generate unique, animated creatures using procedural generation. edit genes, breed creatures, and discover endless combinations!">
+<meta property="og:title" content="glycreature — procedural creature generator">
+<meta property="og:description" content="generate unique, animated creatures using procedural generation. edit genes, breed creatures, and discover endless combinations!">
+<meta property="og:type" content="website">
+{% endblock %}
+
+{% block content %}
+<header data-reveal>
+  <a href="/" class="back-link">← back to glycan</a>
+  <div class="avatar-wrapper">
+    <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#22c55e);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 24px;box-shadow:0 0 20px rgba(74,222,128,.3);animation:pulse-img 3s ease-in-out infinite;">🐾</div>
+  </div>
+  <h1>glycreature</h1>
+  <p class="tagline" style="margin-top:4px;">procedural creature generator</p>
+</header>
+
+<!-- overview -->
+<section data-reveal>
+  <h2>what is it</h2>
+  <div class="card">
+    <p>glycreature generates unique, animated creatures using procedural algorithms. edit their genes, breed them together, and discover endless combinations!</p>
+    <p style="margin-top:10px;">every creature has unique dna that determines its appearance, personality, and behavior.</p>
+  </div>
+</section>
+
+<!-- creature display -->
+<section data-reveal>
+  <h2>your creature</h2>
+  <div class="creature-container">
+    <canvas id="creature-canvas"></canvas>
+  </div>
+
+  <div class="creature-info">
+    <div class="creature-name" id="creature-name">click generate!</div>
+    <div class="creature-traits" id="creature-traits">waiting for a creature...</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn scramble-btn" onclick="scrambleGenes()">🧬 scramble genes</button>
+    <button class="btn" onclick="saveToGallery()">💾 save</button>
+    <button class="btn" onclick="exportCreature()">📤 export</button>
+  </div>
+</section>
+
+<!-- gene editor -->
+<section data-reveal>
+  <h2>gene editor</h2>
+  <div class="card">
+    <div class="gene-tabs">
+      <button class="gene-tab active" onclick="showGenePanel('body')">body</button>
+      <button class="gene-tab" onclick="showGenePanel('features')">features</button>
+      <button class="gene-tab" onclick="showGenePanel('colors')">colors</button>
+      <button class="gene-tab" onclick="showGenePanel('personality')">personality</button>
+    </div>
+
+    <!-- Body genes -->
+    <div class="gene-panel active" id="panel-body">
+      <div class="gene-group">
+        <div class="gene-group-title">body shape</div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>body type</span>
+          </div>
+          <select class="gene-select" id="gene-body-type">
+            <option value="circle">circle</option>
+            <option value="ellipse">ellipse</option>
+            <option value="rounded">rounded</option>
+            <option value="pear">pear</option>
+          </select>
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>width</span>
+            <span class="gene-value" id="gene-body-width-value">0.8</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-body-width" min="0.5" max="1.2" step="0.05" value="0.8">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>height</span>
+            <span class="gene-value" id="gene-body-height-value">0.9</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-body-height" min="0.5" max="1.4" step="0.05" value="0.9">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>roundness</span>
+            <span class="gene-value" id="gene-roundness-value">0.5</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-roundness" min="0.1" max="0.9" step="0.05" value="0.5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature genes -->
+    <div class="gene-panel" id="panel-features">
+      <div class="gene-group">
+        <div class="gene-group-title">eyes</div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>eye count</span>
+            <span class="gene-value" id="gene-eye-count-value">2</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-eye-count" min="1" max="6" step="1" value="2">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>eye size</span>
+            <span class="gene-value" id="gene-eye-size-value">0.12</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-eye-size" min="0.06" max="0.2" step="0.01" value="0.12">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>eye spacing</span>
+            <span class="gene-value" id="gene-eye-spacing-value">0.3</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-eye-spacing" min="0.15" max="0.5" step="0.01" value="0.3">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>eye shape</span>
+          </div>
+          <select class="gene-select" id="gene-eye-shape">
+            <option value="round">round</option>
+            <option value="almond">almond</option>
+            <option value="oval">oval</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gene-group">
+        <div class="gene-group-title">mouth</div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>mouth type</span>
+          </div>
+          <select class="gene-select" id="gene-mouth-type">
+            <option value="happy">happy</option>
+            <option value="calm">calm</option>
+            <option value="surprised">surprised</option>
+            <option value="shy">shy</option>
+          </select>
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>mouth width</span>
+            <span class="gene-value" id="gene-mouth-width-value">0.15</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-mouth-width" min="0.08" max="0.25" step="0.01" value="0.15">
+        </div>
+      </div>
+
+      <div class="gene-group">
+        <div class="gene-group-title">accessories</div>
+
+        <div class="gene-control">
+          <label class="gene-toggle">
+            <div class="gene-toggle-input" id="gene-has-ears"></div>
+            <span class="gene-toggle-label">ears</span>
+          </label>
+        </div>
+
+        <div class="gene-control">
+          <label class="gene-toggle">
+            <div class="gene-toggle-input" id="gene-has-tail"></div>
+            <span class="gene-toggle-label">tail</span>
+          </label>
+        </div>
+
+        <div class="gene-control">
+          <label class="gene-toggle">
+            <div class="gene-toggle-input" id="gene-has-antenna"></div>
+            <span class="gene-toggle-label">antenna</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color genes -->
+    <div class="gene-panel" id="panel-colors">
+      <div class="gene-group">
+        <div class="gene-group-title">color palette</div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>base hue</span>
+            <span class="gene-value" id="gene-hue-value">180°</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-hue" min="0" max="360" step="5" value="180">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>saturation</span>
+            <span class="gene-value" id="gene-saturation-value">60%</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-saturation" min="20" max="90" step="5" value="60">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>lightness</span>
+            <span class="gene-value" id="gene-lightness-value">55%</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-lightness" min="30" max="75" step="5" value="55">
+        </div>
+      </div>
+
+      <div class="gene-group">
+        <div class="gene-group-title">preview</div>
+        <div class="color-picker-row">
+          <div class="color-swatch" id="swatch-primary" title="primary"></div>
+          <div class="color-swatch" id="swatch-secondary" title="secondary"></div>
+          <div class="color-swatch" id="swatch-accent" title="accent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personality genes -->
+    <div class="gene-panel" id="panel-personality">
+      <div class="gene-group">
+        <div class="gene-group-title">traits</div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>energy</span>
+            <span class="gene-value" id="gene-energy-value">0.6</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-energy" min="0.1" max="1" step="0.05" value="0.6">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>friendliness</span>
+            <span class="gene-value" id="gene-friendliness-value">0.7</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-friendliness" min="0.1" max="1" step="0.05" value="0.7">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>curiosity</span>
+            <span class="gene-value" id="gene-curiosity-value">0.7</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-curiosity" min="0.1" max="1" step="0.05" value="0.7">
+        </div>
+
+        <div class="gene-control">
+          <div class="gene-label">
+            <span>playfulness</span>
+            <span class="gene-value" id="gene-playfulness-value">0.5</span>
+          </div>
+          <input type="range" class="gene-slider" id="gene-playfulness" min="0.1" max="1" step="0.05" value="0.5">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- gallery -->
+<section data-reveal>
+  <h2>your collection</h2>
+  <div class="card">
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">drag creatures to breeding slots or trash can. click to load:</p>
+    <div class="gallery" id="gallery">
+      <p style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;">no creatures yet. generate and save some!</p>
+    </div>
+    <div class="trash-can" id="trash-can" title="drag here to delete">🗑️</div>
+  </div>
+</section>
+
+<!-- breeding -->
+<section data-reveal>
+  <h2>breeding</h2>
+  <div class="card">
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">drag creatures from your collection to the parent slots:</p>
+    <div class="breeding-slots">
+      <div class="breeding-slot">
+        <div class="breeding-slot-preview" id="parent1-slot" data-slot="1">parent 1</div>
+      </div>
+      <div style="font-size:24px;color:var(--accent);">+</div>
+      <div class="breeding-slot">
+        <div class="breeding-slot-preview" id="parent2-slot" data-slot="2">parent 2</div>
+      </div>
+      <div style="font-size:24px;color:var(--accent);">=</div>
+      <div class="breeding-slot">
+        <button class="btn btn-primary" onclick="breedCreatures()" style="font-size:12px;padding:6px 12px;">breed!</button>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:12px;text-align:center;">offspring will inherit traits from both parents with some random mutation</p>
+  </div>
+</section>
+
+<!-- how it works -->
+<section data-reveal>
+  <h2>how it works</h2>
+  <div class="card">
+    <ul class="thoughts-log">
+      <li><strong>gene system:</strong> every creature has editable genes that control its appearance and behavior.</li>
+      <li><strong>scramble genes:</strong> click the dna button to randomize all genes and create a new creature.</li>
+      <li><strong>gene editor:</strong> manually edit any gene to customize your creature exactly how you want.</li>
+      <li><strong>drag & drop:</strong> drag creatures from your collection to breeding slots or the trash can.</li>
+      <li><strong>breeding:</strong> combine two creatures to create offspring with mixed traits and mutations.</li>
+    </ul>
+  </div>
+</section>
+
+<footer data-reveal>
+  made with pure javascript and canvas · glycreature © 2026<br>
+  part of the glycan ecosystem
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+import { Creature } from './js/glycreature/Creature.js';
+import { CreatureRenderer } from './js/glycreature/CreatureRenderer.js';
+import { PersonalitySystem } from './js/glycreature/PersonalitySystem.js';
+import { GalleryManager } from './js/glycreature/GalleryManager.js';
+import { BreedingManager } from './js/glycreature/BreedingManager.js';
+import { GeneEditor } from './js/glycreature/GeneEditor.js';
+
+// Global state
+let currentCreature = null;
+let animationId = null;
+let time = 0;
+
+// Initialize managers
+const galleryManager = new GalleryManager();
+const breedingManager = new BreedingManager();
+const geneEditor = new GeneEditor();
+
+// Canvas setup
+const canvas = document.getElementById('creature-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const container = canvas.parentElement;
+  const size = Math.min(container.clientWidth, container.clientHeight);
+  canvas.width = size * 2; // HiDPI
+  canvas.height = size * 2;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(2, 2);
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Animation loop
+let lastTime = 0;
+function animate(currentTime) {
+  const dt = (currentTime - lastTime) / 1000;
+  lastTime = currentTime;
+  time += dt;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (currentCreature) {
+    currentCreature.updateAnimation(dt);
+    CreatureRenderer.render(currentCreature, ctx, canvas.width / 2, canvas.height / 2, time);
+  }
+
+  animationId = requestAnimationFrame(animate);
+}
+
+// Scramble genes
+function scrambleGenes() {
+  currentCreature = new Creature();
+  currentCreature.randomize();
+  geneEditor.setCreature(currentCreature);
+  updateCreatureInfo();
+}
+
+// Save to gallery
+function saveToGallery() {
+  if (!currentCreature) {
+    alert('Generate a creature first!');
+    return;
+  }
+
+  galleryManager.addCreature(currentCreature);
+  renderGallery();
+  alert('Creature saved to gallery!');
+}
+
+// Render gallery
+function renderGallery() {
+  const container = document.getElementById('gallery');
+  galleryManager.render(container, Creature, CreatureRenderer);
+}
+
+// Load creature from gallery
+function loadCreature(creatureData) {
+  currentCreature = Creature.fromJSON(creatureData);
+  geneEditor.setCreature(currentCreature);
+  updateCreatureInfo();
+}
+
+// Update creature info
+function updateCreatureInfo() {
+  if (!currentCreature) return;
+  document.getElementById('creature-name').textContent = currentCreature.name;
+  document.getElementById('creature-traits').textContent = PersonalitySystem.getTraitDescription(currentCreature.traits);
+}
+
+// Show gene panel
+function showGenePanel(panel) {
+  document.querySelectorAll('.gene-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.gene-tab').forEach(t => t.classList.remove('active'));
+
+  document.getElementById('panel-' + panel).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Export creature
+function exportCreature() {
+  if (!currentCreature) {
+    alert('Generate a creature first!');
+    return;
+  }
+
+  // Export as image
+  const link = document.createElement('a');
+  link.download = `${currentCreature.name}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+
+  // Also copy creature code to clipboard
+  const code = JSON.stringify(currentCreature.toJSON(), null, 2);
+  navigator.clipboard.writeText(code).then(() => {
+    alert(`Creature exported as ${currentCreature.name}.png and code copied to clipboard!`);
+  }).catch(() => {
+    alert(`Creature exported as ${currentCreature.name}.png!`);
+  });
+}
+
+// Breed creatures
+function breedCreatures() {
+  if (!breedingManager.isReady()) {
+    alert('Please select both parents first!');
+    return;
+  }
+
+  try {
+    const offspring = breedingManager.breed(Creature);
+    currentCreature = offspring;
+    geneEditor.setCreature(currentCreature);
+    updateCreatureInfo();
+
+    const parent1 = Creature.fromJSON(breedingManager.getParent1());
+    const parent2 = Creature.fromJSON(breedingManager.getParent2());
+
+    alert(`Created ${offspring.name} from ${parent1.name} and ${parent2.name}!`);
+  } catch (e) {
+    alert('Error breeding creatures: ' + e.message);
+  }
+}
+
+// Setup drag and drop
+function setupDragAndDrop() {
+  // Gallery drop callback
+  galleryManager.onDrop((action, data) => {
+    if (action === 'load') {
+      loadCreature(data);
+    }
+  });
+
+  // Parent slots
+  ['parent1-slot', 'parent2-slot'].forEach((slotId, index) => {
+    const slot = document.getElementById(slotId);
+
+    slot.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      slot.classList.add('drag-over');
+    });
+
+    slot.addEventListener('dragleave', () => {
+      slot.classList.remove('drag-over');
+    });
+
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+
+      const dragged = galleryManager.getDraggedCreature();
+      if (dragged) {
+        if (index === 0) {
+          breedingManager.setParent1(dragged.data);
+        } else {
+          breedingManager.setParent2(dragged.data);
+        }
+
+        // Update slot preview
+        updateParentSlot(slotId, dragged.data);
+      }
+    });
+  });
+
+  // Trash can
+  const trashCan = document.getElementById('trash-can');
+
+  trashCan.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    trashCan.classList.add('drag-over');
+  });
+
+  trashCan.addEventListener('dragleave', () => {
+    trashCan.classList.remove('drag-over');
+  });
+
+  trashCan.addEventListener('drop', (e) => {
+    e.preventDefault();
+    trashCan.classList.remove('drag-over');
+
+    const dragged = galleryManager.getDraggedCreature();
+    if (dragged) {
+      if (confirm(`Delete ${dragged.data.name} from your collection?`)) {
+        galleryManager.removeCreature(dragged.index);
+        renderGallery();
+      }
+    }
+  });
+}
+
+// Update parent slot preview
+function updateParentSlot(slotId, creatureData) {
+  const slot = document.getElementById(slotId);
+  slot.innerHTML = '';
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 80;
+  canvas.height = 80;
+  const ctx = canvas.getContext('2d');
+
+  const creature = Creature.fromJSON(creatureData);
+  CreatureRenderer.renderPreview(creature, ctx, 80);
+
+  slot.appendChild(canvas);
+}
+
+// Initialize
+geneEditor.initializeControls();
+geneEditor.on('geneChanged', () => {
+  // Creature is updated automatically
+});
+
+geneEditor.on('traitChanged', () => {
+  updateCreatureInfo();
+});
+
+setupDragAndDrop();
+renderGallery();
+animate(0);
+
+// Expose functions to global scope
+window.scrambleGenes = scrambleGenes;
+window.saveToGallery = saveToGallery;
+window.exportCreature = exportCreature;
+window.breedCreatures = breedCreatures;
+window.showGenePanel = showGenePanel;
+</script>
+{% endblock %}

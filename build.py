@@ -47,6 +47,13 @@ pages = {
         "accent_glow": Markup("rgba(94,234,212,.3)"),
         "accent_card": Markup("rgba(94,234,212,.06)"),
     },
+    "glycreature.html": {
+        "accent": Markup("#4ade80"),
+        "accent_rgb": Markup("74,222,128"),
+        "accent_secondary": Markup("#22c55e"),
+        "accent_glow": Markup("rgba(74,222,128,.3)"),
+        "accent_card": Markup("rgba(74,222,128,.06)"),
+    },
 }
 
 # Render each page
@@ -60,7 +67,7 @@ for template_name, context in pages.items():
         f.write(html)
     print(f"  → {output_path}")
 
-# Copy static assets (images, etc.)
+# Copy static assets (images, js, etc.)
 print("\nCopying static assets...")
 # Copy images directory
 if os.path.exists("images"):
@@ -72,5 +79,15 @@ if os.path.exists("images"):
     print(f"  → images/")
 else:
     print("  (no images/ directory found)")
+
+# Copy js directory
+if os.path.exists("js"):
+    js_dest = os.path.join(OUTPUT_DIR, "js")
+    if os.path.exists(js_dest):
+        shutil.rmtree(js_dest)
+    shutil.copytree("js", js_dest)
+    print(f"  → js/")
+else:
+    print("  (no js/ directory found)")
 
 print(f"\n✅ Done! Static files ready in '{OUTPUT_DIR}/' directory")

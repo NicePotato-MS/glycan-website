@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test GlyCreature Modules</title>
+</head>
+<body>
+    <h1>Testing GlyCreature Modules</h1>
+    <div id="output"></div>
+
+    <script type="module">
+        import { Creature } from './js/glycreature/Creature.js';
+        import { CreatureRenderer } from './js/glycreature/CreatureRenderer.js';
+        import { PersonalitySystem } from './js/glycreature/PersonalitySystem.js';
+
+        const output = document.getElementById('output');
+
+        try {
+            output.innerHTML += '<p>✅ Modules imported successfully</p>';
+
+            // Test Creature
+            const creature = new Creature();
+            output.innerHTML += `<p>✅ Creature created: ${creature.name}</p>`;
+
+            // Test PersonalitySystem
+            const traits = creature.getTraitDescription();
+            output.innerHTML += `<p>✅ Traits: ${traits}</p>`;
+
+            // Test rendering
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            CreatureRenderer.render(creature, ctx, 200, 200, 0);
+
+            output.innerHTML += '<p>✅ Creature rendered to canvas</p>';
+
+        } catch (e) {
+            output.innerHTML += `<p style="color: red;">❌ Error: ${e.message}</p>`;
+            console.error(e);
+        }
+    </script>
+</body>
+</html>
