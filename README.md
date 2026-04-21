@@ -2,27 +2,6 @@
 
 Personal website for Glycan AI and related projects. Built with pure HTML/CSS/JS and Jinja2 templates for static site generation.
 
-## Structure
-
-```
-website/
-├── templates/              # Jinja2 templates (source files)
-│   ├── base.html          # Base template with shared styles
-│   ├── index.html         # Glycan main page
-│   ├── rjai.html          # RJAI project page
-│   ├── thoughts.html      # Thoughts page
-│   ├── game.html          # Memory match game
-│   └── glycreature.html   # Procedural creature generator
-├── dist/                   # Built static files (auto-generated)
-├── js/                     # JavaScript modules
-│   └── glycreature/       # Creature generator modules
-├── images/                 # Static images
-├── build.py                # Build script
-├── build.sh                # Shell wrapper
-├── requirements.txt        # Python deps
-└── package.json            # Node deps (wrangler for deployment)
-```
-
 ## Pages
 
 | Page | Theme | Description |
