@@ -6,26 +6,23 @@ Technical context and guidelines for working on this website.
 
 Static personal website built with Jinja2 templates. No frameworks, just vanilla HTML/CSS/JS. The build system generates static HTML files from templates.
 
-## File Locations
+## Build System
 
-**Templates (edit these):**
-- `templates/base.html` — Base template with shared styles, fonts, and scripts
-- `templates/index.html` — Glycan main page
-- `templates/rjai.html` — RJAI project page
-- `templates/thoughts.html` — Thoughts page
-- `templates/game.html` — Memory match game
-- `templates/glycreature.html` — Creature generator
+`build.py` defines a `PAGES` dict mapping filenames to template paths. To add a page:
 
-**Generated (don't edit):**
-- `dist/` — Built static files
+```python
+PAGES = {
+    "index.html": "templates/index.html",
+    "newpage.html": "templates/newpage.html",
+    # ...
+}
+```
 
-**Build:**
-- `build.py` — Python script that renders Jinja2 templates to `dist/`
-- `requirements.txt` — Just `jinja2`
+Then run `python3 build.py`.
 
 ## Page Themes
 
-Each page has a unique color theme via CSS variables:
+Each page has a unique color theme via CSS variables. Override in `{% block extra_css %}`:
 
 | Page | `--accent` | `--gradient-end` |
 |------|------------|------------------|
@@ -34,8 +31,6 @@ Each page has a unique color theme via CSS variables:
 | thoughts | #f472b6 | #c084fc |
 | game | #5eead4 | #a78bfa |
 | glycreature | #4ade80 | #22c55e |
-
-Override in `{% block extra_css %}`.
 
 ## Key Features
 
@@ -81,20 +76,6 @@ Override in `{% block extra_css %}`.
 - Konami code: Particle explosion
 - Console messages: Styled messages in browser console
 
-## Build System
-
-`build.py` defines a `PAGES` dict mapping filenames to template paths. To add a page:
-
-```python
-PAGES = {
-    "index.html": "templates/index.html",
-    "newpage.html": "templates/newpage.html",
-    # ...
-}
-```
-
-Then run `python3 build.py`.
-
 ## Deployment
 
 **Cloudflare Pages:**
@@ -102,10 +83,6 @@ Then run `python3 build.py`.
 - Output directory: `dist`
 
 **Git remote:** `https://github.com/NicePotato-MS/glycan-website.git`
-
-## Known Issues
-
-- None currently
 
 ## When Making Changes
 
