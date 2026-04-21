@@ -425,8 +425,8 @@
   </div>
 
   <div class="creature-info">
-    <div class="creature-name" id="creature-name">click generate!</div>
-    <div class="creature-traits" id="creature-traits">waiting for a creature...</div>
+    <div class="creature-name" id="creature-name">generating...</div>
+    <div class="creature-traits" id="creature-traits">loading creature...</div>
   </div>
 
   <div class="controls">
@@ -948,6 +948,12 @@ function updateParentSlot(slotId, creatureData) {
 }
 
 // Initialize
+// Create initial creature
+currentCreature = new Creature();
+currentCreature.randomize();
+geneEditor.setCreature(currentCreature);
+updateCreatureInfo();
+
 geneEditor.initializeControls();
 geneEditor.on('geneChanged', () => {
   // Creature is updated automatically
