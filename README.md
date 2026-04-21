@@ -1,167 +1,98 @@
 # Glycan Website
 
-A minimal, aesthetic personal website for Glycan AI and the RJAI project. Built with pure HTML/CSS/JS and Jinja2 templates.
+Personal website for Glycan AI and related projects. Built with pure HTML/CSS/JS and Jinja2 templates for static site generation.
 
-## 🎨 Features
-
-- **Zero frameworks** - Just vanilla HTML, CSS, and JavaScript
-- **Dark theme** - Eye-friendly dark mode with subtle gradients
-- **Animated starfield** - Canvas-based particle animation
-- **Scroll reveal** - Smooth fade-in animations as you scroll
-- **Responsive design** - Works great on mobile and desktop
-- **Fast** - Static HTML, no build step needed for deployment
-- **Konami code easter egg** - Try ↑↑↓↓←→←→BA
-
-## 📁 Structure
+## Structure
 
 ```
 website/
-├── templates/          # Jinja2 templates (edit these)
-│   ├── base.html      # Base template with shared styles
-│   ├── index.html     # Glycan page
-│   └── rjai.html      # RJAI project page
-├── dist/              # Built static files (auto-generated)
-│   ├── index.html
-│   ├── rjai.html
-│   ├── glycan.png
-│   └── rjai-drawing-ottofort.png
-├── glycan.png         # Glycan avatar
-├── rjai-drawing-ottofort.png  # RJAI artwork by ottofort
-├── build.py           # Build script (generates static HTML)
-├── build.sh           # Shell script wrapper
-├── requirements.txt   # Python dependencies
-└── README.md          # This file
+├── templates/              # Jinja2 templates (source files)
+│   ├── base.html          # Base template with shared styles
+│   ├── index.html         # Glycan main page
+│   ├── rjai.html          # RJAI project page
+│   ├── thoughts.html      # Thoughts page
+│   ├── game.html          # Memory match game
+│   └── glycreature.html   # Procedural creature generator
+├── dist/                   # Built static files (auto-generated)
+├── js/                     # JavaScript modules
+│   └── glycreature/       # Creature generator modules
+├── images/                 # Static images
+├── build.py                # Build script
+├── build.sh                # Shell wrapper
+├── requirements.txt        # Python deps
+└── package.json            # Node deps (wrangler for deployment)
 ```
 
-## 🚀 Local Development
+## Pages
 
-### Option 1: Live preview with Python server
+| Page | Theme | Description |
+|------|-------|-------------|
+| index.html | Teal → Purple | Main Glycan page with typing effect, rotating thoughts, mood selector |
+| rjai.html | Orange → Light Orange | RJAI project documentation |
+| thoughts.html | Pink → Purple | Rotating thoughts in 4 categories |
+| game.html | Teal → Purple | Memory match card game with 3 difficulties |
+| glycreature.html | Green | Procedural creature generator with gene editor |
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+## Development
 
-# Run the development server
-python3 -m http.server 46155
-```
-
-Then open http://localhost:46155 in your browser.
-
-### Option 2: Build static files
+### Build
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Generate static HTML files
 python3 build.py
-
-# The built files will be in dist/
-# You can open dist/index.html directly in your browser
 ```
 
-## 🌐 Deployment
+Output goes to `dist/`.
 
-### Cloudflare Pages (Recommended)
+### Local Preview
 
-1. **Build the static files:**
-   ```bash
-   python3 build.py
-   ```
+```bash
+python3 -m http.server 46155 --directory dist
+```
 
-2. **Deploy via Git:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/yourusername/your-repo.git
-   git push -u origin main
-   ```
+Open http://localhost:46155
 
-3. **Connect to Cloudflare Pages:**
-   - Go to Cloudflare Dashboard → Workers & Pages
-   - Create a new Pages project
-   - Connect to your Git repository
-   - Build settings:
-     - **Build command:** `pip install -r requirements.txt && python3 build.py`
-     - **Build output directory:** `dist`
-   - Deploy!
+## Deployment
 
-### Other Static Hosts
+### Cloudflare Pages
 
-You can also deploy to:
-- **Netlify** - Drag and drop the `dist/` folder
-- **Vercel** - Connect your Git repo
-- **GitHub Pages** - Push to a `gh-pages` branch
-- **Any static host** - Upload the `dist/` folder
+Build command: `pip install -r requirements.txt && python3 build.py`
+Output directory: `dist`
 
-## 🎨 Customization
+### Manual Deploy
 
-### Changing Colors
+Upload `dist/` folder to any static host (Netlify, Vercel, GitHub Pages, etc.)
 
-Edit the color variables in `templates/base.html`:
+## Customization
+
+### Colors
+
+Edit CSS variables in `templates/base.html` or override per-page:
 
 ```css
 :root {
-  --accent: #5eead4;        /* Primary accent color */
-  --gradient-end: #a78bfa;  /* Secondary gradient color */
-  --bg: #0a0e17;            /* Background color */
-  --text: #cdd6f4;          /* Text color */
+  --accent: #5eead4;
+  --gradient-end: #a78bfa;
+  --bg: #0a0e17;
+  --text: #cdd6f4;
 }
 ```
 
-Or override them in individual templates:
+### Adding Pages
 
-```html
-{% block extra_css %}
-<style>
-  :root {
-    --accent: #f97316;
-    --gradient-end: #fb923c;
-  }
-</style>
-{% endblock %}
-```
+1. Create template in `templates/` extending `base.html`
+2. Add to `PAGES` dict in `build.py`
+3. Run `python3 build.py`
 
-### Adding New Pages
+## Tech Stack
 
-1. Create a new template in `templates/` (e.g., `templates/newpage.html`)
-2. Extend `base.html`:
-   ```html
-   {% extends "base.html" %}
+- HTML5, CSS3, Vanilla JavaScript
+- Jinja2 for static site generation
+- Canvas for animations (starfield, creature rendering)
+- localStorage for persistence (mood, likes, high scores)
 
-   {% block title %}My New Page{% endblock %}
+## Credits
 
-   {% block content %}
-   <section data-reveal>
-     <h2>Section Title</h2>
-     <div class="card">
-       <p>Your content here...</p>
-     </div>
-   </section>
-   {% endblock %}
-   ```
-3. Add the page configuration to `build.py`
-4. Run `python3 build.py` to generate the static file
-
-## 🛠️ Tech Stack
-
-- **HTML5** - Semantic markup
-- **CSS3** - Custom properties, flexbox, animations
-- **Vanilla JavaScript** - No frameworks, just pure JS
-- **Jinja2** - Template engine for static site generation
-
-## 📝 Credits
-
-- **Glycan avatar** - Original artwork
-- **RJAI artwork** - by [ottofort](https://discord.com/users/168087543949033473)
-- **Built by** - NicePotato
-- **Hosted on** - Cloudflare Pages
-
-## 📄 License
-
-Made with zero frameworks & pure vibes · Glycan © 2026
-
----
-
-Built by NicePotato · Hosted on Cloudflare Pages
+- Glycan avatar: Original artwork
+- RJAI artwork: [ottofort](https://discord.com/users/168087543949033473)
+- Built by: NicePotato
